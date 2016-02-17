@@ -41,6 +41,19 @@ public class FirstFit extends Memory {
 	}
 	
 	/**
+	 * Prints a simple model of the memory. Example:
+	 * 
+	 * |    0 -  110 | Allocated
+	 * |  111 -  150 | Free
+	 * |  151 -  999 | Allocated
+	 * | 1000 - 1024 | Free
+	 */
+	@Override
+	public void printLayout() {
+		// TODO Implement this!
+	}
+	
+	/**
 	 * Compacts the memory space.
 	 */
 	public void compact() {

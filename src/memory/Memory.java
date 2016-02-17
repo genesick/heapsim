@@ -42,7 +42,5 @@ public abstract class Memory extends RawMemory {
 	 * |  151 -  999 | Allocated
 	 * | 1000 - 1024 | Free
 	 */
-	public void printLayout() {
-		// TODO Implement this!
-	}
+	public abstract void printLayout();
 }
