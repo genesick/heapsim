@@ -8,7 +8,7 @@ package memory;
  * @author "Johan Holmberg, Malmö university"
  * @since 1.0
  */
-public class Memory extends RawMemory {
+public abstract class Memory extends RawMemory {
 
 	/**
 	 * Initializes an instance of Memory.
@@ -25,19 +25,14 @@ public class Memory extends RawMemory {
 	 * @param size the number of cells to allocate.
 	 * @return The address of the first cell.
 	 */
-	public Pointer alloc(int size) {
-		// TODO Implement this!
-		return null;
-	}
+	public abstract Pointer alloc(int size);
 	
 	/**
 	 * Releases a number of data cells
 	 * 
 	 * @param p The pointer to release.
 	 */
-	public void release(Pointer p) {
-		// TODO Implement this!
-	}
+	public abstract void release(Pointer p);
 	
 	/**
 	 * Prints a simple model of the memory. Example:
