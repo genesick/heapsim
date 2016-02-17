@@ -7,7 +7,7 @@ package memory;
  * @author "Johan Holmberg, Malmö university"
  * @since 1.0
  */
-public class RawMemory {
+class RawMemory {
 	protected int[] cells;
 	
 	/**
