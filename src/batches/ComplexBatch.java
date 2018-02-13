@@ -47,8 +47,8 @@ public class ComplexBatch {
 		ps[8] = m.alloc(45);
 		ps[8].write(range(1, 45));
 		ps[9] = m.alloc(10);
-		ps[9].write(range(16, 25));
 		m.release(ps[5]);
+		ps[9].write(range(16, 25));
 		m.release(ps[6]);
 		ps[10] = m.alloc(40);
 		ps[10].write(range(301, 340));
@@ -67,7 +67,7 @@ public class ComplexBatch {
 		m.release(ps[12]);
 		ps[16] = m.alloc(170);
 		ps[16].write(range(10001, 10170));
-		ps[17] = m.alloc(105);
+		ps[17] = m.alloc(30);
 		ps[17].write(range(40, 65));
 		ps[18] = m.alloc(40);
 		ps[18].write(range(1, 40));
