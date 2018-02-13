@@ -1,5 +1,6 @@
 package batches;
 
+import memory.BestFit;
 import memory.FirstFit;
 import memory.Memory;
 import memory.Pointer;
@@ -22,7 +23,13 @@ public class SimpleBatch {
 	}
 
 	public void run() {
-		Memory m = new FirstFit(100); // Swap this for  your own implementation
+		System.out.println("First fit");
+		run(new FirstFit(100)); // Swap this for  your own implementation
+		System.out.println("\nBest fit");
+		run(new BestFit(100)); // Swap this for  your own implementation
+	}
+
+	public void run(Memory m) {
 		Pointer p1, p2, p3, p4, p5, p6;
 		
 		p1 = m.alloc(20);
