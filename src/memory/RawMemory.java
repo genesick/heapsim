@@ -9,6 +9,7 @@ package memory;
  */
 class RawMemory {
 	protected int[] cells;
+	protected int offset = 0;
 	
 	/**
 	 * Initializes a memory instance.
@@ -23,14 +24,19 @@ class RawMemory {
 	}
 	
 	/**
-	 * Writes a piece of data to the memory.
+	 * Writes a piece of data to the memory. If you are using an offset,
+	 * you need to take this into consideration when writing data. That
+	 * means, that if you're writing metadata before the "real" data, you
+	 * will have to negatively offset the address to reach the desired
+	 * memory cells.
 	 * 
 	 * @param address The address to write to. 
 	 * @param data The data to write.
 	 */
 	protected void write(int address, int[] data) {
 		try {
-			for (int i = 0; i < data.length; i++) {
+			int limit = data.length + offset;
+			for (int i = offset; i < limit; i++) {
 				cells[address + i] = data[i];
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {}
@@ -53,6 +59,16 @@ class RawMemory {
 		} catch (ArrayIndexOutOfBoundsException e) {}
 		
 		return data;
+	}
+
+	/*
+	 * Sets the offset for writing data. Note that this doesn't affect the
+	 * reading method.
+	 *
+	 * @param offset The write offset used by the write() function.
+	 */
+	public void setOffset(int offset) {
+		this.offset = offset;
 	}
 	
 	@Override
