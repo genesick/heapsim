@@ -37,7 +37,7 @@ class RawMemory {
 		try {
 			int limit = data.length + offset;
 			for (int i = offset; i < limit; i++) {
-				cells[address + i] = data[i];
+				cells[address + i] = data[i - offset];
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {}
 	}
