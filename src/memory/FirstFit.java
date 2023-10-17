@@ -37,12 +37,6 @@ public class FirstFit extends Memory {
         this.size = size;
         mapSize = size;
         memorySpace = new TreeMap<>();
-
-       /* for (int i = 0; i < size; i++) {
-            memorySpace.put(i, 0);
-        }*/
-        memorySpace.put(0,0);
-        memorySpace.put(size, 0);
         // TODO Implement this!
     }
 
@@ -58,25 +52,38 @@ public class FirstFit extends Memory {
         int startOfSpace = 0;
         int endOfSpace = 0;
         Pointer tempPoint;
-        // TODO Implement this!
 
-        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) { //find first address
-            if (memorySpace.higherKey(entry.getKey()) != null) {
-                startOfSpace = (entry.getKey() + entry.getValue()); //get address + size of it.
-                endOfSpace = memorySpace.higherKey(entry.getKey());
+        // Initialize memorySpace if it's empty
+        if (memorySpace.isEmpty()) {
+            for (int i = 0; i < mapSize; i++) {
+                memorySpace.put(-1, 0);
+            }
+        }
 
-                if (size <= (endOfSpace - (startOfSpace))) { // if the stepcounters size is equal or less than the size we want to allocate, then we can put memory in ther
+        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+            startOfSpace = entry.getKey();
+            endOfSpace = entry.getKey() + entry.getValue();
+            if (memorySpace.higherKey(endOfSpace) != null) {
+                int startAddress = memorySpace.higherKey(endOfSpace);
+            }
+            if (startOfSpace != -1) {
+                int freeBlock = endOfSpace - startOfSpace;
+                if (freeBlock >= size) {//if  enough space for allocation
+
                     tempPoint = new Pointer(startOfSpace, this);
-                    memorySpace.put(tempPoint.pointsAt(), size);
-                    System.out.println("allocated memory between " + tempPoint.pointsAt() + " and " + (tempPoint.pointsAt()+size));
-                    //memorySpace.put(tempPoint.pointsAt(), size);
+                   // memorySpace.remove(startOfSpace); // Remove the old free space entry
+                    // If the free space is larger than the requested size, split it
+                    int newFreeStart = startOfSpace + size;
+                    int newFreeSize = freeBlock - size;
+                    memorySpace.put(newFreeStart, newFreeSize);
+
+                    System.out.println("allocated " + size + " memory between " + tempPoint.pointsAt() + " and " + (tempPoint.pointsAt() + size));
                     return tempPoint;
                 }
             }
         }
-
-        tempPoint = new Pointer(0, this);
-        return tempPoint;
+        // If no suitable space is found, return a pointer with address -1
+        return new Pointer(-1, this);
     }
 
 
@@ -102,30 +109,20 @@ public class FirstFit extends Memory {
      * |  151 -  999 | Allocated
      * | 1000 - 1024 | Free
      */
-    @Override
     public void printLayout() {
-        int lastEndAddress = -1;
+        int cBlockStart = 0;
+        String cblockType = cells[0] == 0 ? "Free" : "Allocated";
 
-        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
-            int startAddress = entry.getKey();
-            int endAddress = startAddress + entry.getValue();
-
-            if (lastEndAddress >= 0) {
-                // Print the free space between the last end address and the current start address.
-                System.out.printf("| %4d - %3d | Free%n", lastEndAddress + 1, startAddress - 1);
+        for (int i = 0; i < cells.length; i++) {
+            if ((cells[i] == 0 && cblockType.equals("Allocated")) || (cells[i] != 0 && cblockType.equals("Free"))) {
+                System.out.printf("%d - %d | %s%n", cBlockStart, i - 1, cblockType);
+                cBlockStart = i;
+                cblockType = cells[i] == 0 ? "Free" : "Allocated";
             }
-
-            // Print the allocated memory range.
-            System.out.printf("| %4d - %3d | Allocated%n", startAddress, endAddress);
-
-            lastEndAddress = endAddress;
         }
-
-        if (lastEndAddress < size - 1) {
-            // Print any remaining free space at the end.
-            System.out.printf("| %4d - %3d | Free%n", lastEndAddress + 1, size - 1);
-        }
+        System.out.printf("%d - %d | %s%n", cBlockStart, cells.length - 1, cblockType);
     }
+
 
     /**
      * Compacts the memory space.
