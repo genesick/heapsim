@@ -7,6 +7,7 @@ package memory;
  * @since 1.0
  */
 
+import java.awt.*;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,7 +18,7 @@ import java.util.TreeMap;
  */
 public class FirstFit extends Memory {
 	private LinkedList availableMemory;
-	private TreeMap<Integer, Integer> memorySpace;
+	private TreeMap<Pointer, Integer> memorySpace;
 	/**
 	 * Initializes an instance of a first fit-based memory.
 	 * 
@@ -57,10 +58,10 @@ public class FirstFit extends Memory {
 						availableMemory.set(j, cells); //occupy space
 					}
 					Pointer tempPoint = new Pointer(spaceCounter, this);
-					memorySpace.put(tempPoint, spaceCounter); // address + amt of space
-
-					return new Pointer(spaceCounter, this);
-					memorySpace.put(index, spaceCounter);
+					memorySpace.put(tempPoint, index); // store pointer + amt of space
+					//index = startindex för aMemory
+					//space counter = slutet av indexet för aMemory
+					return tempPoint;
 				}
 			}
 			else { // space occupied, reset counter
@@ -80,10 +81,10 @@ public class FirstFit extends Memory {
 	@Override
 	public void release(Pointer p) {
 		// TODO Implement this!
-		int address = p.pointsAt();
-		for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) { //iterate until you find a matching address
-			if (memorySpace.containsKey(address)) { // if we find the key
-				int sizeToRelease = entry.getValue(); //amt of space to remove
+		for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) { //iterate until you find a matching address
+			if (memorySpace.containsKey(p)) { // if we find the key
+				memorySpace.remove(p);
+				int sizeToRelease = p.pointsAt(); //amt of space to remove
 				for (int i = 0; i < sizeToRelease; i++) {
 
 				}
