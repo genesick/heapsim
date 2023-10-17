@@ -1,6 +1,7 @@
 package memory;
 
 /**
+ * ÄNDRA EJ
  * Simulates a memory space, made out of a number of memory cells. Each cell
  * holds an int value.
  * 

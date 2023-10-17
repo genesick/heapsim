@@ -7,6 +7,9 @@ package memory;
  * @since 1.0
  */
 public class BestFit extends Memory {
+	/**
+	 * Används för uppgift 2
+	 */
 
 	/**
 	 * Initializes an instance of a best fit-based memory.

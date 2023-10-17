@@ -24,14 +24,14 @@ public class ComplexBatch {
 
 	public void run() {
 		System.out.println("First fit");
-		run(new FirstFit(1000)); // Swap this for  your own implementation
-		System.out.println("\nBest fit");
-		run(new BestFit(1000)); // Swap this for  your own implementation
+		run(new FirstFit(100)); // Swap this for  your own implementation
+		//System.out.println("\nBest fit");
+		//run(new BestFit(1000)); // Swap this for  your own implementation
 	}
 
 	public void run(Memory m) {
 		Pointer[] ps = new Pointer[20];
-		
+
 		ps[0] = m.alloc(100);
 		ps[0].write(range(1, 100));
 		ps[1] = m.alloc(200);
@@ -81,9 +81,9 @@ public class ComplexBatch {
 		ps[18].write(range(1, 40));
 		ps[19] = m.alloc(5);
 		ps[19].write(range(11, 15));
-		
+
 		m.printLayout();
-		
+
 		// After these last releases, the memory table should be empty
 		m.release(ps[1]);
 		m.release(ps[7]);

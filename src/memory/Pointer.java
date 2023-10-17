@@ -1,6 +1,7 @@
 package memory;
 
 /**
+ * ÄNDRA EJ
  * A simple class representing a pointer. It points to a specific address in
  * the memory space (see {@link RawMemory}). Using the pointer, the memory can
  * be read and written.
