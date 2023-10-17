@@ -27,49 +27,48 @@ public class FirstFit extends Memory {
 
 	public FirstFit(int size) {
 		super(size);
-		availableMemory = new LinkedList(); //checks memory space if available or not
-		for (int i = 0; i < size; i++) { //initialize empty spaces
-			availableMemory.add(null);
-		}
 		memorySpace = new TreeMap<>();
-		//integer = points to the processes (key)
-		//string = the memory of the processes (value)
+		memorySpace.put(new Pointer(0, this), 0);
 		// TODO Implement this!
 	}
 
 
 	/**
-	 * Allocates a number of memory cells. 
-	 * 
+	 * Allocates a number of memory cells.
+	 *
 	 * @param size the number of cells to allocate.
 	 * @return The address of the first cell.
 	 */
 	@Override
 	public Pointer alloc(int size) {
 		int spaceCounter = 0;
-		int index = 0;
+		int startOfSpace = 0;
+		int endOfSpace = 0;
+		int storage = 0;
 		// TODO Implement this!
-		for (int i = 0; i < availableMemory.size(); i++) { //check if space is available first
-			if (availableMemory.get(i) == null) {
-				spaceCounter++;
-				if (spaceCounter >= size) {
+
+		for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) {
+			Pointer holdP = entry.getKey();
+			startOfSpace = (holdP.pointsAt() + entry.getValue()); //get address + size of it.
+
+			Map.Entry<Pointer, Integer> nextEntry = memorySpace.ceilingEntry(holdP);
+			if (nextEntry != null) {
+				endOfSpace = memorySpace.get(nextEntry.getKey());
+				storage = (startOfSpace-endOfSpace); //count how many spaces there are between the new value vs to the next address = endindex
+				if (size <= storage) { // if the stepcounters size is equal or less than the size we want to allocate, then we can put memory in ther
+					int address = endOfSpace+1;
+					Pointer tempPoint = new Pointer(address, this);
+					memorySpace.put(tempPoint, spaceCounter); // store pointer + amt of space
 					System.out.println("space found");
-					for (int j = index; j < spaceCounter; j++) {
-						availableMemory.set(j, cells); //occupy space
-					}
-					Pointer tempPoint = new Pointer(spaceCounter, this);
-					memorySpace.put(tempPoint, index); // store pointer + amt of space
-					//index = startindex för aMemory
-					//space counter = slutet av indexet för aMemory
 					return tempPoint;
 				}
+				else {
+					System.out.println("space occupied");
+				}
 			}
-			else { // space occupied, reset counter
-				spaceCounter = 0;
-				index = i + 1; //index keeps track of where were moving
-				System.out.println("occupied space");
-			}
+
 		}
+
 		return null;
 	}
 	
@@ -84,10 +83,6 @@ public class FirstFit extends Memory {
 		for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) { //iterate until you find a matching address
 			if (memorySpace.containsKey(p)) { // if we find the key
 				memorySpace.remove(p);
-				int sizeToRelease = p.pointsAt(); //amt of space to remove
-				for (int i = 0; i < sizeToRelease; i++) {
-
-				}
 			}
 		}
 	}
