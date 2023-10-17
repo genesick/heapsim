@@ -114,34 +114,22 @@ public class FirstFit extends Memory {
      * |  151 -  999 | Allocated
      * | 1000 - 1024 | Free
      */
-    @Override
     public void printLayout() {
-        int currentAddress = 0;
-        int size = cells.length;
+        int currentBlockStart = 0;
+        String currentBlockType = cells[0] == 0 ? "Free" : "Allocated";
 
-        for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) {
-            int startAddress = entry.getKey().pointsAt();
-            int blockSize = entry.getValue();
-            int endAddress = startAddress + blockSize - 1;
-
-            // Print the free memory block if there's any gap before the allocated block
-            if (currentAddress < startAddress) {
-                int freeBlockEnd = startAddress - 1;
-                System.out.printf("| %4d - %4d | Free%n", currentAddress, freeBlockEnd);
+        for (int i = 0; i < cells.length; i++) {
+            if ((cells[i] == 0 && currentBlockType.equals("Allocated")) || (cells[i] != 0 && currentBlockType.equals("Free"))) {
+                System.out.printf("%d - %d | %s%n", currentBlockStart, i - 1, currentBlockType);
+                currentBlockStart = i;
+                currentBlockType = cells[i] == 0 ? "Free" : "Allocated";
             }
-
-            // Print the allocated memory block
-            System.out.printf("| %4d - %4d | Allocated%n", startAddress, endAddress);
-
-            currentAddress = endAddress + 1;
         }
 
-        // Print any remaining free memory block after the last allocated block
-        if (currentAddress < size) {
-            int freeBlockEnd = size - 1;
-            System.out.printf("| %4d - %4d | Free%n", currentAddress, freeBlockEnd);
-        }
+        // Print the last block
+        System.out.printf("%d - %d | %s%n", currentBlockStart, cells.length - 1, currentBlockType);
     }
+
 
 
     /**
