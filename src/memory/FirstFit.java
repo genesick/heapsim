@@ -49,32 +49,21 @@ public class FirstFit extends Memory {
      */
     @Override
     public Pointer alloc(int size) {
-        int spaceCounter = 0;
-        int freeIndex = 0;
-        Pointer tempPoint = new Pointer(0, this);
         // TODO Implement this!
-
         if (size <= mapSize) {
-            for (int i = 0; i < mapSize; i++) {
-                if (cells[i] == 0) {
-                    spaceCounter++;
-                    if (spaceCounter >= size) {
-                        tempPoint = new Pointer(freeIndex + 1, this);
-                        memorySpace.put(tempPoint, size);
-                        //System.out.println("allocated " + size + " memory between " + freeIndex + " and " + (freeIndex + size));
-                        return tempPoint;
-                    }
-                } else {
-                    spaceCounter = 0;
-                    freeIndex = i + 1;
-                }
+            Pointer tempPoint;
+            int address = findNextAddress(size);
+            if (address != -1) {
+                tempPoint = new Pointer(address, this);
+                memorySpace.put(tempPoint, size);
+                System.out.println("allocated " + size + " memory at " + address);
+                return tempPoint;
             }
         }
-
-        return null;
+        return new Pointer(-1, this);
     }
 
-    private int findFirstAvailableSpace(int size) {
+    private int findNextAddress(int size) {
         int spaceCounter = 0;
         for (int i = 0; i < cells.length; i++) {
             if (cells[i] == 0) {
@@ -82,14 +71,15 @@ public class FirstFit extends Memory {
                 for (int j = i; j < cells.length; j++) {
                     if (cells[j] == 0) {
                         spaceCounter++;
-                    }
-                    else {
-                        i = j;
+                        if (spaceCounter == size) {
+                            return i;
+                        }
+                    } else { // if not empty
+                        spaceCounter = 0;
                         break;
                     }
                 }
             }
-
         }
         return -1;
     }
@@ -110,9 +100,8 @@ public class FirstFit extends Memory {
                 cells[i] = 0;
                 sizeRemoved = i;
             }
-
             memorySpace.remove(p);
-            //System.out.println("removed " + sizeRemoved + " memory space at address: " + p.pointsAt());
+            System.out.println("removed " + sizeRemoved + " memory space at address: " + p.pointsAt());
         }
     }
 
@@ -153,8 +142,6 @@ public class FirstFit extends Memory {
             System.out.printf("| %4d - %4d | Free%n", currentAddress, freeBlockEnd);
         }
     }
-
-
 
 
     /**

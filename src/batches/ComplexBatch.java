@@ -100,6 +100,6 @@ public class ComplexBatch {
 		m.release(ps[18]);
 		m.release(ps[19]);
 		
-		//m.printLayout();
+		m.printLayout();
 	}
 }
