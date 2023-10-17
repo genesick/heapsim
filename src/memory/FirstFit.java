@@ -18,7 +18,10 @@ import java.util.TreeMap;
  */
 public class FirstFit extends Memory {
 	private LinkedList availableMemory;
-	private TreeMap<Pointer, Integer> memorySpace;
+	private int size;
+	private int memoryCounter = 0;
+	private int mapSize;
+	private TreeMap<Integer, Integer> memorySpace;
 	/**
 	 * Initializes an instance of a first fit-based memory.
 	 * 
@@ -27,8 +30,9 @@ public class FirstFit extends Memory {
 
 	public FirstFit(int size) {
 		super(size);
+		this.size = size;
+		mapSize = size;
 		memorySpace = new TreeMap<>();
-		memorySpace.put(new Pointer(0, this), 0);
 		// TODO Implement this!
 	}
 
@@ -46,30 +50,31 @@ public class FirstFit extends Memory {
 		int endOfSpace = 0;
 		int storage = 0;
 		// TODO Implement this!
+		Pointer tempPoint = new Pointer(0, this);
 
-		for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) {
-			Pointer holdP = entry.getKey();
-			startOfSpace = (holdP.pointsAt() + entry.getValue()); //get address + size of it.
-
-			Map.Entry<Pointer, Integer> nextEntry = memorySpace.ceilingEntry(holdP);
-			if (nextEntry != null) {
-				endOfSpace = memorySpace.get(nextEntry.getKey());
+		for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) { //find first address
+			startOfSpace = (entry.getKey() + entry.getValue()) + 1; //get address + size of it.
+			
+			if (memorySpace.higherKey(entry.getKey()) != null) { //if not out of loop
+				endOfSpace = memorySpace.higherKey(entry.getKey());
+				System.out.println("number: " + endOfSpace);
 				storage = (startOfSpace-endOfSpace); //count how many spaces there are between the new value vs to the next address = endindex
 				if (size <= storage) { // if the stepcounters size is equal or less than the size we want to allocate, then we can put memory in ther
 					int address = endOfSpace+1;
-					Pointer tempPoint = new Pointer(address, this);
-					memorySpace.put(tempPoint, spaceCounter); // store pointer + amt of space
+					tempPoint = new Pointer(address, this);
+					memorySpace.remove(entry.getKey());
+					memorySpace.put(tempPoint.pointsAt(), spaceCounter); // store pointer + amt of space
 					System.out.println("space found");
 					return tempPoint;
 				}
 				else {
+					memorySpace.put(tempPoint.pointsAt(), spaceCounter); // store pointer + amt of space
 					System.out.println("space occupied");
+					continue;
 				}
 			}
-
 		}
-
-		return null;
+		return tempPoint;
 	}
 	
 	/**
@@ -80,11 +85,9 @@ public class FirstFit extends Memory {
 	@Override
 	public void release(Pointer p) {
 		// TODO Implement this!
-		for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) { //iterate until you find a matching address
-			if (memorySpace.containsKey(p)) { // if we find the key
-				memorySpace.remove(p);
+			if (memorySpace.containsKey(p.pointsAt())) { // if we find the key
+				memorySpace.remove(p.pointsAt());
 			}
-		}
 	}
 	
 	/**
@@ -97,33 +100,28 @@ public class FirstFit extends Memory {
 	 */
 	@Override
 	public void printLayout() {
-		int startIndex = 0;
+		int lastEndAddress = -1;
 
-		for (int i = 0; i < availableMemory.size(); i++) {
-			if (availableMemory.get(i) == null) {
-				// This cell is free; continue to the next cell.
-				continue;
-			} else {
-				// This cell is allocated; print the range.
-				if (startIndex == i) {
-					// Start of an allocated range; update startIndex.
-					startIndex = i;
-				} else {
-					// End of an allocated range; print the range information.
-					int endIndex = i - 1;
-					System.out.println("| " + startIndex + " - " + endIndex + " | Allocated");
-					startIndex = i;
-				}
+		for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+			int startAddress = entry.getKey();
+			int endAddress = startAddress + entry.getValue();
+
+			if (lastEndAddress >= 0) {
+				// Print the free space between the last end address and the current start address.
+				System.out.printf("| %4d - %3d | Free%n", lastEndAddress + 1, startAddress - 1);
 			}
+
+			// Print the allocated memory range.
+			System.out.printf("| %4d - %3d | Allocated%n", startAddress, endAddress);
+
+			lastEndAddress = endAddress;
 		}
 
-		// After the loop, check if there's an allocated range at the end.
-		if (startIndex < availableMemory.size() - 1) {
-			int endIndex = availableMemory.size() - 1;
-			System.out.println("| " + startIndex + " - " + endIndex + " | Allocated");
+		if (lastEndAddress < size - 1) {
+			// Print any remaining free space at the end.
+			System.out.printf("| %4d - %3d | Free%n", lastEndAddress + 1, size - 1);
 		}
 	}
-	
 	/**
 	 * Compacts the memory space.
 	 */

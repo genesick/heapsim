@@ -30,7 +30,7 @@ public class SimpleBatch {
 	}
 
 	public void run(Memory m) {
-		Pointer p1, p2, p3, p4, p5, p6 = new Pointer(m);
+		Pointer p1, p2, p3, p4, p5, p6;
 		
 		p1 = m.alloc(20);
 		p1.write(range(1, 20));
