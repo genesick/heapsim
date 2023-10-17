@@ -24,7 +24,7 @@ public class FirstFit extends Memory {
     private int size;
     private int memoryCounter = 0;
     private int mapSize;
-    private TreeMap<Integer, Integer> memorySpace;
+    private HashMap<Pointer, Integer> memorySpace;
 
     /**
      * Initializes an instance of a first fit-based memory.
@@ -36,12 +36,7 @@ public class FirstFit extends Memory {
         super(size);
         this.size = size;
         mapSize = size;
-        memorySpace = new TreeMap<>();
-       /* for (int i = 0; i < size; i++) {
-            memorySpace.put(i, 0);
-        }*/
-        memorySpace.put(0,0);
-        memorySpace.put(size, 0);
+        memorySpace = new HashMap<>();
         // TODO Implement this!
     }
 
@@ -54,27 +49,49 @@ public class FirstFit extends Memory {
      */
     @Override
     public Pointer alloc(int size) {
-        int startOfSpace = 0;
-        int endOfSpace = 0;
-        Pointer tempPoint;
+        int spaceCounter = 0;
+        int freeIndex = 0;
+        Pointer tempPoint = new Pointer(0, this);
         // TODO Implement this!
 
-        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) { //find first address
-            if (memorySpace.higherKey(entry.getKey()) != null) {
-                startOfSpace = (entry.getKey() + entry.getValue()); //get address + size of it.
-                endOfSpace = memorySpace.higherKey(entry.getKey());
-
-                if (size <= (endOfSpace - (startOfSpace))) { // if the stepcounters size is equal or less than the size we want to allocate, then we can put memory in ther
-                    tempPoint = new Pointer(startOfSpace, this);
-                    memorySpace.put(tempPoint.pointsAt(), size);
-                    System.out.println("allocated " + size + " memory between " + tempPoint.pointsAt() + " and " + (tempPoint.pointsAt()+size));
-                    return tempPoint;
+        if (size <= mapSize) {
+            for (int i = 0; i < mapSize; i++) {
+                if (cells[i] == 0) {
+                    spaceCounter++;
+                    if (spaceCounter >= size) {
+                        tempPoint = new Pointer(freeIndex + 1, this);
+                        memorySpace.put(tempPoint, size);
+                        //System.out.println("allocated " + size + " memory between " + freeIndex + " and " + (freeIndex + size));
+                        return tempPoint;
+                    }
+                } else {
+                    spaceCounter = 0;
+                    freeIndex = i + 1;
                 }
             }
         }
 
-        tempPoint = new Pointer(0, this);
-        return tempPoint;
+        return null;
+    }
+
+    private int findFirstAvailableSpace(int size) {
+        int spaceCounter = 0;
+        for (int i = 0; i < cells.length; i++) {
+            if (cells[i] == 0) {
+                spaceCounter++;
+                for (int j = i; j < cells.length; j++) {
+                    if (cells[j] == 0) {
+                        spaceCounter++;
+                    }
+                    else {
+                        i = j;
+                        break;
+                    }
+                }
+            }
+
+        }
+        return -1;
     }
 
 
@@ -85,12 +102,20 @@ public class FirstFit extends Memory {
      */
     @Override
     public void release(Pointer p) {
-        // TODO Implement this!
-        if (memorySpace.containsKey(p.pointsAt())) { // if we find the key
-            memorySpace.remove(p.pointsAt());
-            System.out.println("removed memory space at address: " + p.pointsAt());
+        int sizeRemoved = 0;
+        // Check if the Pointer p is in the memorySpace map
+        if (memorySpace.containsKey(p)) {
+            int toRemove = memorySpace.get(p) + p.pointsAt();
+            for (int i = p.pointsAt(); i < toRemove; i++) {
+                cells[i] = 0;
+                sizeRemoved = i;
+            }
+
+            memorySpace.remove(p);
+            //System.out.println("removed " + sizeRemoved + " memory space at address: " + p.pointsAt());
         }
     }
+
 
     /**
      * Prints a simple model of the memory. Example:
@@ -102,28 +127,34 @@ public class FirstFit extends Memory {
      */
     @Override
     public void printLayout() {
-        int lastEndAddress = -1;
+        int currentAddress = 0;
+        int size = cells.length;
 
-        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
-            int startAddress = entry.getKey();
-            int endAddress = startAddress + entry.getValue();
+        for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) {
+            int startAddress = entry.getKey().pointsAt();
+            int blockSize = entry.getValue();
+            int endAddress = startAddress + blockSize - 1;
 
-            if (lastEndAddress >= -1) {
-                // Print the free space between the last end address and the current start address.
-                System.out.printf("| %4d - %4d | Free%n", lastEndAddress + 1, startAddress - 1);
+            // Print the free memory block if there's any gap before the allocated block
+            if (currentAddress < startAddress) {
+                int freeBlockEnd = startAddress - 1;
+                System.out.printf("| %4d - %4d | Free%n", currentAddress, freeBlockEnd);
             }
 
-            // Print the allocated memory range.
+            // Print the allocated memory block
             System.out.printf("| %4d - %4d | Allocated%n", startAddress, endAddress);
 
-            lastEndAddress = endAddress;
+            currentAddress = endAddress + 1;
         }
 
-        if (lastEndAddress < (size - 1)) {
-            // Print any remaining free space at the end.
-            System.out.printf("| %4d - %4d | Free%n", lastEndAddress + 1, size - 1);
+        // Print any remaining free memory block after the last allocated block
+        if (currentAddress < size) {
+            int freeBlockEnd = size - 1;
+            System.out.printf("| %4d - %4d | Free%n", currentAddress, freeBlockEnd);
         }
     }
+
+
 
 
     /**
@@ -134,8 +165,8 @@ public class FirstFit extends Memory {
     }
 
     public void printTable() {
-        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
-            System.out.println("address: " + entry.getKey() + ", " + entry.getValue());
+        for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) {
+            //System.out.println("address: " + entry.getKey() + ", " + entry.getValue());
         }
     }
 }
