@@ -49,7 +49,6 @@ public class SimpleBatch {
 		p5.write(range(70, 79));
 		p6 = m.alloc(15);
 		p6.write(range(1, 15));
-
 		m.printLayout();
 		
 		//m.compact();

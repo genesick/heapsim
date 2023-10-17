@@ -27,8 +27,8 @@ public class ComplexBatch {
 		FirstFit ff = new FirstFit(1000);
 		run(ff);
 		//ff.printTable();
-		//System.out.println("\nBest fit");
-		//run(new BestFit(1000)); // Swap this for  your own implementation
+		System.out.println("\nBest fit");
+		run(new BestFit(1000)); // Swap this for  your own implementation
 	}
 
 	public void run(Memory m) {
