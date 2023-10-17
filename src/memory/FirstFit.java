@@ -7,7 +7,10 @@ package memory;
  * @since 1.0
  */
 
+import com.sun.source.tree.Tree;
+
 import java.awt.*;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,6 +37,12 @@ public class FirstFit extends Memory {
         this.size = size;
         mapSize = size;
         memorySpace = new TreeMap<>();
+
+       /* for (int i = 0; i < size; i++) {
+            memorySpace.put(i, 0);
+        }*/
+        memorySpace.put(0,0);
+        memorySpace.put(size, 0);
         // TODO Implement this!
     }
 
@@ -46,40 +55,30 @@ public class FirstFit extends Memory {
      */
     @Override
     public Pointer alloc(int size) {
-        int spaceCounter = 0;
         int startOfSpace = 0;
         int endOfSpace = 0;
-        int storage = 0;
+        Pointer tempPoint;
         // TODO Implement this!
-        Pointer tempPoint = new Pointer(0, this);
 
-        if (memorySpace.isEmpty()) {
-            memorySpace.put(tempPoint.pointsAt(), size);
-            return tempPoint;
-        } else {
-            for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) { //find first address
-                startOfSpace = (entry.getKey() + entry.getValue()) + 1; //get address + size of it.
-                if (memorySpace.higherKey(entry.getKey()) != null) {
-                    endOfSpace = memorySpace.higherKey(entry.getKey());
-                    System.out.println("number: " + endOfSpace);
-                    storage = (startOfSpace - endOfSpace); //count how many spaces there are between the new value vs to the next address = endindex
-                    if (size <= storage) { // if the stepcounters size is equal or less than the size we want to allocate, then we can put memory in ther
-                        int address = endOfSpace + 1;
-                        tempPoint = new Pointer(address, this);
-                        memorySpace.remove(entry.getKey());
-                        memorySpace.put(tempPoint.pointsAt(), spaceCounter); // store pointer + amt of space
-                        System.out.println("space found");
-                        return tempPoint;
-                    } else {
-                        memorySpace.put(tempPoint.pointsAt(), spaceCounter); // store pointer + amt of space
-                        System.out.println("space occupied");
-                        continue;
-                    }
+        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) { //find first address
+            if (memorySpace.higherKey(entry.getKey()) != null) {
+                startOfSpace = (entry.getKey() + entry.getValue()); //get address + size of it.
+                endOfSpace = memorySpace.higherKey(entry.getKey());
+
+                if (size <= (endOfSpace - (startOfSpace))) { // if the stepcounters size is equal or less than the size we want to allocate, then we can put memory in ther
+                    tempPoint = new Pointer(startOfSpace, this);
+                    memorySpace.put(tempPoint.pointsAt(), size);
+                    System.out.println("allocated memory between " + tempPoint.pointsAt() + " and " + (tempPoint.pointsAt()+size));
+                    //memorySpace.put(tempPoint.pointsAt(), size);
+                    return tempPoint;
                 }
             }
         }
+
+        tempPoint = new Pointer(0, this);
         return tempPoint;
     }
+
 
     /**
      * Releases a number of data cells
@@ -91,6 +90,7 @@ public class FirstFit extends Memory {
         // TODO Implement this!
         if (memorySpace.containsKey(p.pointsAt())) { // if we find the key
             memorySpace.remove(p.pointsAt());
+            System.out.println("removed memory space at address: " + p.pointsAt());
         }
     }
 
@@ -132,5 +132,11 @@ public class FirstFit extends Memory {
      */
     public void compact() {
         // TODO Implement this!
+    }
+
+    public void printTable() {
+        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+            System.out.println("address: " + entry.getKey() + ", " + entry.getValue());
+        }
     }
 }

@@ -43,4 +43,7 @@ public abstract class Memory extends RawMemory {
 	 * | 1000 - 1024 | Free
 	 */
 	public abstract void printLayout();
+
+	public void compact() {
+	}
 }

@@ -24,7 +24,10 @@ public class SimpleBatch {
 
 	public void run() {
 		System.out.println("First fit");
-		run(new FirstFit(100)); // Swap this for  your own implementation
+		FirstFit ff = new FirstFit(100);
+		run(ff);
+		ff.printTable();
+		//run(new FirstFit(100)); // Swap this for  your own implementation
 		//System.out.println("\nBest fit");
 		//run(new BestFit(100)); // Swap this for  your own implementation
 	}
@@ -46,10 +49,11 @@ public class SimpleBatch {
 		p5.write(range(70, 79));
 		p6 = m.alloc(15);
 		p6.write(range(1, 15));
+
+
+		//m.printLayout();
 		
-		m.printLayout();
-		
-//		m.compact();
+		m.compact();
 //		System.out.println("After compact()");
 //		m.printLayout();
 	}
