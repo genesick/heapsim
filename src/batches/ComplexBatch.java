@@ -24,7 +24,7 @@ public class ComplexBatch {
 
 	public void run() {
 		System.out.println("First fit");
-		FirstFit ff = new FirstFit(1100);
+		FirstFit ff = new FirstFit(1000);
 		run(ff);
 		//ff.printTable();
 		//System.out.println("\nBest fit");

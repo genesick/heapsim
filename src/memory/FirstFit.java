@@ -101,7 +101,7 @@ public class FirstFit extends Memory {
                 sizeRemoved = i;
             }
             memorySpace.remove(p);
-            System.out.println("removed " + sizeRemoved + " memory space at address: " + p.pointsAt());
+           // System.out.println("removed " + sizeRemoved + " memory space at address: " + p.pointsAt());
         }
     }
 
@@ -126,17 +126,7 @@ public class FirstFit extends Memory {
             }
         }
 
-        // Print the last block
         System.out.printf("%d - %d | %s%n", currentBlockStart, cells.length - 1, currentBlockType);
-    }
-
-
-
-    /**
-     * Compacts the memory space.
-     */
-    public void compact() {
-        // TODO Implement this!
     }
 
     public void printTable() {
