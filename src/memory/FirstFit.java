@@ -37,7 +37,6 @@ public class FirstFit extends Memory {
         this.size = size;
         mapSize = size;
         memorySpace = new TreeMap<>();
-
        /* for (int i = 0; i < size; i++) {
             memorySpace.put(i, 0);
         }*/
@@ -68,8 +67,7 @@ public class FirstFit extends Memory {
                 if (size <= (endOfSpace - (startOfSpace))) { // if the stepcounters size is equal or less than the size we want to allocate, then we can put memory in ther
                     tempPoint = new Pointer(startOfSpace, this);
                     memorySpace.put(tempPoint.pointsAt(), size);
-                    System.out.println("allocated memory between " + tempPoint.pointsAt() + " and " + (tempPoint.pointsAt()+size));
-                    //memorySpace.put(tempPoint.pointsAt(), size);
+                    System.out.println("allocated " + size + " memory between " + tempPoint.pointsAt() + " and " + (tempPoint.pointsAt()+size));
                     return tempPoint;
                 }
             }
@@ -110,22 +108,23 @@ public class FirstFit extends Memory {
             int startAddress = entry.getKey();
             int endAddress = startAddress + entry.getValue();
 
-            if (lastEndAddress >= 0) {
+            if (lastEndAddress >= -1) {
                 // Print the free space between the last end address and the current start address.
-                System.out.printf("| %4d - %3d | Free%n", lastEndAddress + 1, startAddress - 1);
+                System.out.printf("| %4d - %4d | Free%n", lastEndAddress + 1, startAddress - 1);
             }
 
             // Print the allocated memory range.
-            System.out.printf("| %4d - %3d | Allocated%n", startAddress, endAddress);
+            System.out.printf("| %4d - %4d | Allocated%n", startAddress, endAddress);
 
             lastEndAddress = endAddress;
         }
 
-        if (lastEndAddress < size - 1) {
+        if (lastEndAddress < (size - 1)) {
             // Print any remaining free space at the end.
-            System.out.printf("| %4d - %3d | Free%n", lastEndAddress + 1, size - 1);
+            System.out.printf("| %4d - %4d | Free%n", lastEndAddress + 1, size - 1);
         }
     }
+
 
     /**
      * Compacts the memory space.
