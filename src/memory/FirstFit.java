@@ -49,19 +49,19 @@ public class FirstFit extends Memory {
      */
     @Override
     public Pointer alloc(int size) {
+        Pointer tempPoint = new Pointer(-1, this);
         // TODO Implement this!
         if (size <= mapSize) {
-            Pointer tempPoint;
             int address = findNextAddress(size);
             if (address != -1) {
                 tempPoint = new Pointer(address, this);
                 memorySpace.put(tempPoint, size);
-                //System.out.println("allocated " + size + " memory at " + address);
                 return tempPoint;
             }
         }
-        return new Pointer(-1, this);
+        return tempPoint; //return invalid pointer
     }
+
 
     private int findNextAddress(int size) {
         int spaceCounter = 0;
@@ -71,10 +71,10 @@ public class FirstFit extends Memory {
                 for (int j = i; j < cells.length; j++) {
                     if (cells[j] == 0) {
                         spaceCounter++;
-                        if (spaceCounter == size) {
+                        if (spaceCounter == size) { //return when free cells fits
                             return i;
                         }
-                    } else { // if not empty
+                    } else { //restart
                         spaceCounter = 0;
                         break;
                     }
@@ -92,6 +92,7 @@ public class FirstFit extends Memory {
     @Override
     public void release(Pointer p) {
         int sizeRemoved = 0;
+        // TODO Implement this!
         // Check if the Pointer p is in the memorySpace map
         if (memorySpace.containsKey(p)) {
             int toRemove = memorySpace.get(p) + p.pointsAt();
@@ -114,18 +115,17 @@ public class FirstFit extends Memory {
      * | 1000 - 1024 | Free
      */
     public void printLayout() {
-        int currentBlockStart = 0;
-        String currentBlockType = cells[0] == 0 ? "Free" : "Allocated";
+        int cBlockStart = 0;
+        String cblockType = cells[0] == 0 ? "Free" : "Allocated";
 
         for (int i = 0; i < cells.length; i++) {
-            if ((cells[i] == 0 && currentBlockType.equals("Allocated")) || (cells[i] != 0 && currentBlockType.equals("Free"))) {
-                System.out.printf("%d - %d | %s%n", currentBlockStart, i - 1, currentBlockType);
-                currentBlockStart = i;
-                currentBlockType = cells[i] == 0 ? "Free" : "Allocated";
+            if ((cells[i] == 0 && cblockType.equals("Allocated")) || (cells[i] != 0 && cblockType.equals("Free"))) {
+                System.out.printf("%d - %d | %s%n", cBlockStart, i - 1, cblockType);
+                cBlockStart = i;
+                cblockType = cells[i] == 0 ? "Free" : "Allocated";
             }
         }
-
-        System.out.printf("%d - %d | %s%n", currentBlockStart, cells.length - 1, currentBlockType);
+        System.out.printf("%d - %d | %s%n", cBlockStart, cells.length - 1, cblockType);
     }
 
     public void printTable() {
