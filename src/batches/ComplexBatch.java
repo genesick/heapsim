@@ -26,7 +26,7 @@ public class ComplexBatch {
 		System.out.println("First fit");
 		FirstFit ff = new FirstFit(1000);
 		run(ff);
-		ff.printTable();
+		//ff.printTable();
 		//System.out.println("\nBest fit");
 		//run(new BestFit(1000)); // Swap this for  your own implementation
 	}
@@ -84,7 +84,7 @@ public class ComplexBatch {
 		ps[19] = m.alloc(5);
 		ps[19].write(range(11, 15));
 
-		m.printMap();
+		//m.printMap();
 
 		m.printLayout();
 

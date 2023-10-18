@@ -10,10 +10,7 @@ package memory;
 import com.sun.source.tree.Tree;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Används för uppgift 1 & 3
@@ -44,46 +41,54 @@ public class FirstFit extends Memory {
     /**
      * Allocates a number of memory cells.
      *
-     * @param size the number of cells to allocate.
+     * @param cells the number of cells to allocate.
      * @return The address of the first cell.
      */
     @Override
-    public Pointer alloc(int size) {
-        int startPoint = -1;
-        for (int i = 0; i < mapSize - size; i++) {
-
-        }
+    public Pointer alloc(int cells) {
         Pointer tempPoint = new Pointer(-1, this);
+        int startAddress = -1;
+        int okSpace;
 
         if (memorySpace.isEmpty()) {
-            // If the memory map is empty, allocate memory at the beginning
-            memorySpace.put(0, size);
-            return tempPoint = new Pointer(0, this);
-        }
-
-        // Iterate through the memory space map
-        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
-            int cBlockStart = entry.getKey();
-            int cBlockSize = entry.getValue();
-
-            if (memorySpace.higherKey(cBlockStart) != null) { // if there is an address next higher than the first one
-                if ((cBlockSize + cBlockStart) >= size) {
-                    int totalSize = cBlockStart + cBlockSize;
-                    memorySpace.put(totalSize, size);
-                    System.out.println("next address : " + totalSize);
-                    return tempPoint = new Pointer(totalSize, this);
-                }
+            for (int i = 0; i < mapSize; i++) {
+                memorySpace.put(i, -1); // initialize memory space to all unallocated
             }
-            System.out.println("start block " + cBlockStart);
-            System.out.println("size of block " + cBlockSize);
         }
 
-        // If no suitable block is found, allocate memory at the end
-        int lastBlockStart = memorySpace.lastEntry().getKey();
-        memorySpace.put(lastBlockStart + size, 0); // Add a new block at the end
-        return tempPoint = new Pointer(lastBlockStart, this);
-    }
+        for (int i = 0; i <= mapSize; i++) { // find address here
+            okSpace = 1;
+            for (int j = i; j < i + cells; j++) {
+                if (memorySpace.containsKey(j)) {
+                    if (memorySpace.get(j) != -1) {
+                        okSpace = 0;
+                        i = j; //skip since address is occupied
+                        break;
+                    }
+                }
 
+            }
+            if (okSpace == 1) { // if address not occupied, we know where to start
+                startAddress = i;
+                break;
+            } else {
+                //System.out.println("address occupied");
+            }
+        }
+
+        if (startAddress != -1 && startAddress <= mapSize) {
+
+                memorySpace.put(startAddress, cells);
+
+            tempPoint = new Pointer(startAddress, this);
+            System.out.println("allocate " + cells + " cells starting from address " + startAddress);
+            return tempPoint;
+        } else {
+            System.out.println("cannot allocate");
+        }
+
+        return tempPoint;
+    }
 
 
     /**
@@ -91,14 +96,17 @@ public class FirstFit extends Memory {
      *
      * @param p The pointer to release.
      */
-    @Override
     public void release(Pointer p) {
-        // TODO Implement this!
-
-        if (memorySpace.containsKey(p.pointsAt())) { // if we find the key
-            memorySpace.remove(p.pointsAt());
+        Iterator<Map.Entry<Integer, Integer>> iterator = memorySpace.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, Integer> entry = iterator.next();
+            if (p.pointsAt() == entry.getKey()) {
+                iterator.remove(); // Safely remove the entry
+                System.out.println("removed cells");
+            }
         }
     }
+
 
     /**
      * Prints a simple model of the memory. Example:
@@ -110,28 +118,33 @@ public class FirstFit extends Memory {
      */
     @Override
     public void printLayout() {
-        int lastEndAddress = -1;
+        int currentAddress = 0;
+        int size = cells.length;
 
         for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
             int startAddress = entry.getKey();
-            int endAddress = startAddress + entry.getValue();
+            int blockSize = entry.getValue();
+            int endAddress = startAddress + blockSize - 1;
 
-            if (lastEndAddress >= 0) {
-                // Print the free space between the last end address and the current start address.
-                System.out.printf("| %4d - %4d | Free%n", lastEndAddress + 1, startAddress - 1);
+            // Print the free memory block if there's any gap before the allocated block
+            if (currentAddress < startAddress) {
+                int freeBlockEnd = startAddress - 1;
+                System.out.printf("| %4d - %4d | Free%n", currentAddress, freeBlockEnd);
             }
 
-            // Print the allocated memory range.
+            // Print the allocated memory block
             System.out.printf("| %4d - %4d | Allocated%n", startAddress, endAddress);
 
-            lastEndAddress = endAddress;
+            currentAddress = endAddress + 1;
         }
 
-        if (lastEndAddress < size - 1) {
-            // Print any remaining free space at the end.
-            System.out.printf("| %4d - %4d | Free%n", lastEndAddress + 1, size - 1);
+        // Print any remaining free memory block after the last allocated block
+        if (currentAddress < size) {
+            int freeBlockEnd = size - 1;
+            System.out.printf("| %4d - %4d | Free%n", currentAddress, freeBlockEnd);
         }
     }
+
 
     /**
      * Compacts the memory space.
@@ -143,11 +156,14 @@ public class FirstFit extends Memory {
     public void printTable() {
         for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
             System.out.println("address: " + entry.getKey() + ", " + entry.getValue());
+            System.out.println();
         }
     }
 
     @Override
     public void printMap() {
-        System.out.println(memorySpace.toString());
+        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+            System.out.println("address: " + entry.getKey() + ", " + entry.getValue());
+        }
     }
 }
