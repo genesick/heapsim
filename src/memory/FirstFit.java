@@ -51,28 +51,19 @@ public class FirstFit extends Memory {
     public Pointer alloc(int size) {
         Pointer tempPoint = new Pointer(-1, this);
         // TODO Implement this!
-
-        for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) {
-            int currentBlockStart = entry.getKey().pointsAt();
-            int currentBlockSize = entry.getValue();
-
-            System.out.println("start of block " + currentBlockStart);
-            System.out.println("size of block: " + currentBlockSize);
-        }
-
-        /*if (size <= mapSize) {
+        if (size <= mapSize) {
             int address = findNextAddress(size);
             if (address != -1) {
                 tempPoint = new Pointer(address, this);
-                //memorySpace.put(tempPoint, size);
+                memorySpace.put(tempPoint, size);
                 return tempPoint;
             }
-        }*/
+        }
         return tempPoint; //return invalid pointer
     }
 
 
-    /*private int findNextAddress(int size) {
+    private int findNextAddress(int size) {
         int spaceCounter = 0;
         for (int i = 0; i < cells.length; i++) {
             if (cells[i] == 0) {
@@ -91,7 +82,7 @@ public class FirstFit extends Memory {
             }
         }
         return -1;
-    }*/
+    }
 
     /**
      * Releases a number of data cells
