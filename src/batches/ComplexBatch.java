@@ -24,7 +24,7 @@ public class ComplexBatch {
 
 	public void run() {
 		System.out.println("First fit");
-		FirstFit ff = new FirstFit(100);
+		FirstFit ff = new FirstFit(1000);
 		run(ff);
 		ff.printTable();
 		//System.out.println("\nBest fit");
@@ -84,6 +84,8 @@ public class ComplexBatch {
 		ps[19] = m.alloc(5);
 		ps[19].write(range(11, 15));
 
+		m.printMap();
+
 		m.printLayout();
 
 		// After these last releases, the memory table should be empty
@@ -99,7 +101,8 @@ public class ComplexBatch {
 		m.release(ps[17]);
 		m.release(ps[18]);
 		m.release(ps[19]);
-		
-		m.printLayout();
+
+
+		//m.printLayout();
 	}
 }

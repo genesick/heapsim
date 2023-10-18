@@ -37,12 +37,6 @@ public class FirstFit extends Memory {
         this.size = size;
         mapSize = size;
         memorySpace = new TreeMap<>();
-
-       /* for (int i = 0; i < size; i++) {
-            memorySpace.put(i, 0);
-        }*/
-        memorySpace.put(0,0);
-        memorySpace.put(size, 0);
         // TODO Implement this!
     }
 
@@ -55,29 +49,41 @@ public class FirstFit extends Memory {
      */
     @Override
     public Pointer alloc(int size) {
-        int startOfSpace = 0;
-        int endOfSpace = 0;
-        Pointer tempPoint;
-        // TODO Implement this!
+        int startPoint = -1;
+        for (int i = 0; i < mapSize - size; i++) {
 
-        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) { //find first address
-            if (memorySpace.higherKey(entry.getKey()) != null) {
-                startOfSpace = (entry.getKey() + entry.getValue()); //get address + size of it.
-                endOfSpace = memorySpace.higherKey(entry.getKey());
+        }
+        Pointer tempPoint = new Pointer(-1, this);
 
-                if (size <= (endOfSpace - (startOfSpace))) { // if the stepcounters size is equal or less than the size we want to allocate, then we can put memory in ther
-                    tempPoint = new Pointer(startOfSpace, this);
-                    memorySpace.put(tempPoint.pointsAt(), size);
-                    System.out.println("allocated memory between " + tempPoint.pointsAt() + " and " + (tempPoint.pointsAt()+size));
-                    //memorySpace.put(tempPoint.pointsAt(), size);
-                    return tempPoint;
-                }
-            }
+        if (memorySpace.isEmpty()) {
+            // If the memory map is empty, allocate memory at the beginning
+            memorySpace.put(0, size);
+            return tempPoint = new Pointer(0, this);
         }
 
-        tempPoint = new Pointer(0, this);
-        return tempPoint;
+        // Iterate through the memory space map
+        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+            int cBlockStart = entry.getKey();
+            int cBlockSize = entry.getValue();
+
+            if (memorySpace.higherKey(cBlockStart) != null) { // if there is an address next higher than the first one
+                if ((cBlockSize + cBlockStart) >= size) {
+                    int totalSize = cBlockStart + cBlockSize;
+                    memorySpace.put(totalSize, size);
+                    System.out.println("next address : " + totalSize);
+                    return tempPoint = new Pointer(totalSize, this);
+                }
+            }
+            System.out.println("start block " + cBlockStart);
+            System.out.println("size of block " + cBlockSize);
+        }
+
+        // If no suitable block is found, allocate memory at the end
+        int lastBlockStart = memorySpace.lastEntry().getKey();
+        memorySpace.put(lastBlockStart + size, 0); // Add a new block at the end
+        return tempPoint = new Pointer(lastBlockStart, this);
     }
+
 
 
     /**
@@ -88,9 +94,9 @@ public class FirstFit extends Memory {
     @Override
     public void release(Pointer p) {
         // TODO Implement this!
+
         if (memorySpace.containsKey(p.pointsAt())) { // if we find the key
             memorySpace.remove(p.pointsAt());
-            System.out.println("removed memory space at address: " + p.pointsAt());
         }
     }
 
@@ -112,18 +118,18 @@ public class FirstFit extends Memory {
 
             if (lastEndAddress >= 0) {
                 // Print the free space between the last end address and the current start address.
-                System.out.printf("| %4d - %3d | Free%n", lastEndAddress + 1, startAddress - 1);
+                System.out.printf("| %4d - %4d | Free%n", lastEndAddress + 1, startAddress - 1);
             }
 
             // Print the allocated memory range.
-            System.out.printf("| %4d - %3d | Allocated%n", startAddress, endAddress);
+            System.out.printf("| %4d - %4d | Allocated%n", startAddress, endAddress);
 
             lastEndAddress = endAddress;
         }
 
         if (lastEndAddress < size - 1) {
             // Print any remaining free space at the end.
-            System.out.printf("| %4d - %3d | Free%n", lastEndAddress + 1, size - 1);
+            System.out.printf("| %4d - %4d | Free%n", lastEndAddress + 1, size - 1);
         }
     }
 
@@ -138,5 +144,10 @@ public class FirstFit extends Memory {
         for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
             System.out.println("address: " + entry.getKey() + ", " + entry.getValue());
         }
+    }
+
+    @Override
+    public void printMap() {
+        System.out.println(memorySpace.toString());
     }
 }

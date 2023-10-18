@@ -46,4 +46,6 @@ public abstract class Memory extends RawMemory {
 
 	public void compact() {
 	}
+
+	public abstract void printMap();
 }

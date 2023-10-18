@@ -55,4 +55,9 @@ public class BestFit extends Memory {
 	public void printLayout() {
 		// TODO Implement this!
 	}
+
+	@Override
+	public void printMap() {
+
+	}
 }
