@@ -56,6 +56,7 @@ public class FirstFit extends Memory {
             if (address != -1) {
                 tempPoint = new Pointer(address, this);
                 memorySpace.put(tempPoint, size);
+                System.out.println("allocated " + size + " memory at " + address);
                 return tempPoint;
             }
         }
@@ -83,6 +84,7 @@ public class FirstFit extends Memory {
         }
         return -1;
     }
+
 
     /**
      * Releases a number of data cells
