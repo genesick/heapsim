@@ -1,0 +1,145 @@
+package memory;
+
+/**
+ * This memory model allocates memory cells based on the first-fit method.
+ *
+ * @author "Johan Holmberg, Malmö university"
+ * @since 1.0
+ */
+
+import com.sun.source.tree.Tree;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * Används för uppgift 1 & 3
+ * read first available block, and then continue until amount of available spaces in a row fits the memory space.
+ */
+public class FirstFit extends Memory {
+    private LinkedList availableMemory;
+    private int size;
+    private int memoryCounter = 0;
+    private int mapSize;
+    private TreeMap<Integer, Integer> memorySpace;
+
+    /**
+     * Initializes an instance of a first fit-based memory.
+     *
+     * @param size The number of cells.
+     */
+
+    public FirstFit(int size) {
+        super(size);
+        this.size = size;
+        mapSize = size;
+        memorySpace = new TreeMap<>();
+        // TODO Implement this!
+    }
+
+
+    /**
+     * Allocates a number of memory cells.
+     *
+     * @param size the number of cells to allocate.
+     * @return The address of the first cell.
+     */
+    @Override
+    public Pointer alloc(int size) {
+        Pointer tempPoint = new Pointer(-1, this);
+        // TODO Implement this!
+        /* locate the next address by adding the address and memory space
+        check if theres a lower key
+        use higher key to find the next position
+        lowerkey and higherkey to pinpoint space between for first fit
+        * */
+
+        if (memorySpace.isEmpty()) {
+            tempPoint = new Pointer(0, this);
+            memorySpace.put(tempPoint.pointsAt(), size);
+            return tempPoint;
+        }
+        else {
+            for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+                //System.out.println("entry " + memorySpace.firstKey());
+                if (memorySpace.lowerKey(entry.getKey()) != null) {  //there is a key lower than our current, now to navigate!!
+                    if (memorySpace.higherKey(entry.getKey()) != null) { //now to find the next higher key
+                        int freeSpace = memorySpace.lowerKey(size);
+                        int endOfSpace = memorySpace.higherKey(size);
+                        //System.out.println("our entry key is " + endOfSpace);
+
+                        if (size <= (endOfSpace - freeSpace)) { //if there is enough space to allocate, we can put right now
+                            tempPoint = new Pointer(freeSpace, this); //
+                            memorySpace.put(tempPoint.pointsAt(), size);
+                            //System.out.println("1allocated " + size + " at address: " + tempPoint.pointsAt());
+                            return tempPoint;
+                        }
+                    } else { //if there is no higher key than the current pointer, then we can append directly to the lowest
+                        int freeSpace = memorySpace.lowerKey(size);
+                        System.out.println(freeSpace);
+                        tempPoint = new Pointer(memorySpace.lowerKey(size), this); //
+                        memorySpace.put(tempPoint.pointsAt(), size);
+                        //System.out.println("2allocated " + size + " at address: " + tempPoint.pointsAt());
+                        return tempPoint;
+                    }
+                } else { //is there is no lower key than our current, we can place it at start
+                    tempPoint = new Pointer(0, this); //locate at start
+                    memorySpace.put(tempPoint.pointsAt(), size);
+                    System.out.println("3allocated " + size + " at address: " + tempPoint.pointsAt());
+                    //return tempPoint;
+                }
+            }
+        }
+
+        //System.out.println("allocated " + size + " at address: " + tempPoint.pointsAt());
+
+        return tempPoint; //return invalid pointer
+    }
+
+    /**
+     * Releases a number of data cells
+     *
+     * @param p The pointer to release.
+     */
+    @Override
+    public void release(Pointer p) {
+        // TODO Implement this!
+        // Check if the Pointer p is in the memorySpace map
+        if (memorySpace.containsKey(p.pointsAt())) {
+            memorySpace.remove(p.pointsAt());
+            System.out.println("removed memory space at address: " + p.pointsAt());
+        }
+    }
+
+
+    /**
+     * Prints a simple model of the memory. Example:
+     * <p>
+     * |    0 -  110 | Allocated
+     * |  111 -  150 | Free
+     * |  151 -  999 | Allocated
+     * | 1000 - 1024 | Free
+     */
+    public void printLayout() {
+        int cBlockStart = 0;
+        String cblockType = cells[0] == 0 ? "Free" : "Allocated";
+
+        for (int i = 0; i < cells.length; i++) {
+            if ((cells[i] == 0 && cblockType.equals("Allocated")) || (cells[i] != 0 && cblockType.equals("Free"))) {
+                System.out.printf("%d - %d | %s%n", cBlockStart, i - 1, cblockType);
+                cBlockStart = i;
+                cblockType = cells[i] == 0 ? "Free" : "Allocated";
+            }
+        }
+        System.out.printf("%d - %d | %s%n", cBlockStart, cells.length - 1, cblockType);
+    }
+
+    public void printTable() {
+        //for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) {
+        //System.out.println("address: " + entry.getKey() + ", " + entry.getValue());
+        //  }
+    }
+}

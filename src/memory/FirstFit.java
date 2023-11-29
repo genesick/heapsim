@@ -24,7 +24,7 @@ public class FirstFit extends Memory {
     private int size;
     private int memoryCounter = 0;
     private int mapSize;
-    private HashMap<Pointer, Integer> memorySpace;
+    private TreeMap<Integer, Integer> memorySpace;
 
     /**
      * Initializes an instance of a first fit-based memory.
@@ -36,7 +36,7 @@ public class FirstFit extends Memory {
         super(size);
         this.size = size;
         mapSize = size;
-        memorySpace = new HashMap<>();
+        memorySpace = new TreeMap<>();
         // TODO Implement this!
     }
 
@@ -51,40 +51,44 @@ public class FirstFit extends Memory {
     public Pointer alloc(int size) {
         Pointer tempPoint = new Pointer(-1, this);
         // TODO Implement this!
-        if (size <= mapSize) {
-            int address = findNextAddress(size);
-            if (address != -1) {
-                tempPoint = new Pointer(address, this);
-                memorySpace.put(tempPoint, size);
-                System.out.println("allocated " + size + " memory at " + address);
-                return tempPoint;
-            }
+        /* locate the next address by adding the address and memory space
+        check if theres a lower key
+        use higher key to find the next position
+        lowerkey and higherkey to pinpoint space between for first fit
+        * */
+
+        if (memorySpace.isEmpty()) {
+            tempPoint = new Pointer(0, this);
+            memorySpace.put(tempPoint.pointsAt(), size);
+            return tempPoint;
         }
+
+            for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+                 if (entry.getKey() == memorySpace.lastKey()) { //if were at the end
+                     /**
+                      * issue here is if we remove something in the middle, then it will keep on stacking
+                      * the values at the end when we want it to remove it in the middle
+                      */
+                     int freeSpace = memorySpace.lastKey() + entry.getValue();
+                     if (freeSpace < mapSize) {
+                         tempPoint = new Pointer(freeSpace, this);
+                         memorySpace.put(tempPoint.pointsAt(), size);
+                         System.out.println("Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                         return tempPoint;
+                     }
+                 }
+                 if (memorySpace.lowerEntry(entry.getValue()) != null) {
+                     System.out.println(memorySpace.lowerEntry(entry.getValue()).getValue());
+                     int freeSpace = memorySpace.lowerEntry(entry.getValue()).getValue();
+                     tempPoint = new Pointer(freeSpace, this);
+                     memorySpace.put(tempPoint.pointsAt(), size);
+                 }
+            }
+
+        //System.out.println("allocated " + size + " at address: " + tempPoint.pointsAt());
+
         return tempPoint; //return invalid pointer
     }
-
-
-    private int findNextAddress(int size) {
-        int spaceCounter = 0;
-        for (int i = 0; i < cells.length; i++) {
-            if (cells[i] == 0) {
-                spaceCounter++;
-                for (int j = i; j < cells.length; j++) {
-                    if (cells[j] == 0) {
-                        spaceCounter++;
-                        if (spaceCounter == size) { //return when free cells fits
-                            return i;
-                        }
-                    } else { //restart
-                        spaceCounter = 0;
-                        break;
-                    }
-                }
-            }
-        }
-        return -1;
-    }
-
 
     /**
      * Releases a number of data cells
@@ -93,17 +97,11 @@ public class FirstFit extends Memory {
      */
     @Override
     public void release(Pointer p) {
-        int sizeRemoved = 0;
         // TODO Implement this!
         // Check if the Pointer p is in the memorySpace map
-        if (memorySpace.containsKey(p)) {
-            int toRemove = memorySpace.get(p) + p.pointsAt();
-            for (int i = p.pointsAt(); i < toRemove; i++) {
-                cells[i] = 0;
-                sizeRemoved = i;
-            }
-            memorySpace.remove(p);
-           // System.out.println("removed " + sizeRemoved + " memory space at address: " + p.pointsAt());
+        if (memorySpace.containsKey(p.pointsAt())) {
+            memorySpace.remove(p.pointsAt());
+            System.out.println("removed " + p.pointsAt());
         }
     }
 
@@ -118,21 +116,14 @@ public class FirstFit extends Memory {
      */
     public void printLayout() {
         int cBlockStart = 0;
-        String cblockType = cells[0] == 0 ? "Free" : "Allocated";
+        //printTable();
 
-        for (int i = 0; i < cells.length; i++) {
-            if ((cells[i] == 0 && cblockType.equals("Allocated")) || (cells[i] != 0 && cblockType.equals("Free"))) {
-                System.out.printf("%d - %d | %s%n", cBlockStart, i - 1, cblockType);
-                cBlockStart = i;
-                cblockType = cells[i] == 0 ? "Free" : "Allocated";
-            }
-        }
-        System.out.printf("%d - %d | %s%n", cBlockStart, cells.length - 1, cblockType);
+
     }
 
     public void printTable() {
-        for (Map.Entry<Pointer, Integer> entry : memorySpace.entrySet()) {
-            //System.out.println("address: " + entry.getKey() + ", " + entry.getValue());
-        }
+        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+            System.out.println("startAddress: " + entry.getKey() + ", " + (entry.getKey() + entry.getValue()));
+          }
     }
 }
