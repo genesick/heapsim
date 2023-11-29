@@ -50,43 +50,46 @@ public class FirstFit extends Memory {
     @Override
     public Pointer alloc(int size) {
         Pointer tempPoint = new Pointer(-1, this);
-        // TODO Implement this!
-        /* locate the next address by adding the address and memory space
-        check if theres a lower key
-        use higher key to find the next position
-        lowerkey and higherkey to pinpoint space between for first fit
-        * */
 
         if (memorySpace.isEmpty()) {
             tempPoint = new Pointer(0, this);
             memorySpace.put(tempPoint.pointsAt(), size);
+            //System.out.println("1Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
             return tempPoint;
         }
 
-            for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
-                 if (entry.getKey() == memorySpace.lastKey()) { //if were at the end
-                     /**
-                      * issue here is if we remove something in the middle, then it will keep on stacking
-                      * the values at the end when we want it to remove it in the middle
-                      */
-                     int freeSpace = memorySpace.lastKey() + entry.getValue();
-                     if (freeSpace < mapSize) {
-                         tempPoint = new Pointer(freeSpace, this);
-                         memorySpace.put(tempPoint.pointsAt(), size);
-                         System.out.println("Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
-                         return tempPoint;
-                     }
-                 }
-                 if (memorySpace.lowerEntry(entry.getValue()) != null) {
-                     System.out.println(memorySpace.lowerEntry(entry.getValue()).getValue());
-                     int freeSpace = memorySpace.lowerEntry(entry.getValue()).getValue();
-                     tempPoint = new Pointer(freeSpace, this);
-                     memorySpace.put(tempPoint.pointsAt(), size);
-                 }
+        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+            if (memorySpace.lowerEntry(entry.getKey()) != null) {
+                int endOfSpace = entry.getKey();
+                int freeSpace = memorySpace.lowerEntry(entry.getKey()).getValue() + memorySpace.lowerEntry(entry.getKey()).getKey();
+                //check if enough space to allocate something there
+                //this part is for when we want to allocate memory in the middle
+                if ((endOfSpace-freeSpace) >= size) { // if there is enough space to allocate, then OK
+                    tempPoint = new Pointer(freeSpace, this);
+                    memorySpace.put(tempPoint.pointsAt(), size);
+                    return tempPoint;
+                }
+            }
+            else if (memorySpace.lowerKey(entry.getKey()) == null) { //there is no lower key than entry.getKey
+                if (entry.getKey() != 0) {//if its not 0, lets see if we can add memory from 0
+                    if (entry.getKey() >= size) { //if there is space to add without overriding, then allocate OK
+                        tempPoint = new Pointer(0, this);
+                        memorySpace.put(0, size);
+                        return tempPoint;
+                    }
+                }
             }
 
-        //System.out.println("allocated " + size + " at address: " + tempPoint.pointsAt());
+            if (entry.getKey() == memorySpace.lastKey()) { //if were at the end
+                int freeSpace = entry.getKey() + entry.getValue();
+                if (freeSpace <= mapSize) {
+                    tempPoint = new Pointer(freeSpace, this);
+                    memorySpace.put(tempPoint.pointsAt(), size);
+                    return tempPoint;
+                }
+            }
 
+        }
         return tempPoint; //return invalid pointer
     }
 
@@ -101,7 +104,7 @@ public class FirstFit extends Memory {
         // Check if the Pointer p is in the memorySpace map
         if (memorySpace.containsKey(p.pointsAt())) {
             memorySpace.remove(p.pointsAt());
-            System.out.println("removed " + p.pointsAt());
+            //System.out.println("removed " + p.pointsAt());
         }
     }
 
@@ -115,15 +118,31 @@ public class FirstFit extends Memory {
      * | 1000 - 1024 | Free
      */
     public void printLayout() {
-        int cBlockStart = 0;
-        //printTable();
+        System.out.println("Memory Layout:");
 
+        int currentBlockStart = -1;
+        String currentBlockType = "Free";
 
-    }
-
-    public void printTable() {
         for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
-            System.out.println("startAddress: " + entry.getKey() + ", " + (entry.getKey() + entry.getValue()));
-          }
+            int blockStart = entry.getKey();
+            int blockSize = entry.getValue();
+
+            // Check for gaps between the previous block and the current block
+            if (currentBlockStart != -1 && blockStart > currentBlockStart + 1) {
+                System.out.printf("| %4d - %4d | %s%n", currentBlockStart + 1, blockStart - 1, "Free");
+            }
+
+            System.out.printf("| %4d - %4d | %s%n", blockStart, blockStart + blockSize - 1, "Allocated");
+
+            // Update for the next iteration
+            currentBlockStart = blockStart + blockSize - 1;
+        }
+
+        // Check for any remaining free space at the end
+        if (currentBlockStart < mapSize - 1) {
+            System.out.printf("| %4d - %4d | %s%n", currentBlockStart + 1, mapSize - 1, "Free");
+        }
     }
+
+
 }

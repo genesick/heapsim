@@ -143,3 +143,130 @@ public class FirstFit extends Memory {
         //  }
     }
 }
+
+
+@Override
+    public Pointer alloc(int size) {
+        Pointer tempPoint = new Pointer(-1, this);
+
+        if (memorySpace.isEmpty()) {
+            tempPoint = new Pointer(0, this);
+            memorySpace.put(tempPoint.pointsAt(), size);
+            return tempPoint;
+        }
+
+            for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+                 if (entry.getKey() == memorySpace.lastKey()) { //if were at the end
+                     /**
+                      * issue here is if we remove something in the middle, then it will keep on stacking
+                      * the values at the end when we want it to remove it in the middle
+                      */
+                     int freeSpace = memorySpace.lastKey() + entry.getValue();
+                     if (freeSpace < mapSize) {
+                         tempPoint = new Pointer(freeSpace, this);
+                         memorySpace.put(tempPoint.pointsAt(), size);
+                         System.out.println("Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                         return tempPoint;
+                     }
+                 }
+                 if (memorySpace.lowerEntry(entry.getValue()) != null) {
+                     //System.out.println(memorySpace.lowerEntry(entry.getValue()).getValue());
+                     int freeSpace = memorySpace.lowerEntry(entry.getValue()).getValue();
+                     tempPoint = new Pointer(freeSpace, this);
+                     memorySpace.put(tempPoint.pointsAt(), size);
+                     System.out.println("Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                     return tempPoint;
+                 }
+            }
+        return tempPoint; //return invalid pointer
+    }
+
+
+    for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+                int freeSpace = entry.getKey() + entry.getValue();
+                if (memorySpace.higherEntry(entry.getKey()) == null) {
+                    memorySpace.put(freeSpace, size);
+                    System.out.println("Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                    return tempPoint;
+                } else if ((memorySpace.higherEntry(entry.getKey()).getValue()) >= size) { // if not null
+                    memorySpace.put(tempPoint.pointsAt(), size);
+                    System.out.println("Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                    return tempPoint;
+                } else if (memorySpace.lastKey() == entry.getKey()) {
+                    if (freeSpace <= mapSize) {
+                        freeSpace = entry.getKey() + entry.getValue();
+                        tempPoint = new Pointer(freeSpace, this);
+                        memorySpace.put(tempPoint.pointsAt(), size);
+                        System.out.println("Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                        return tempPoint;
+                    }
+                }
+            }
+
+
+            for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+                        int freeSpace = entry.getKey() + entry.getValue();
+                        if (memorySpace.lowerKey(entry.getKey()) == null) { //there is no lower key than entry.getKey
+                            if (entry.getKey() != 0) {//if its not 0, lets see if we can add memory from 0
+                                if (entry.getKey() >= size) { //if there is space to add without overriding, then allocate OK
+                                    System.out.println(entry.getKey() + " key");
+                                    tempPoint = new Pointer(0, this);
+                                    memorySpace.put(0, size);
+                                    System.out.println("Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                                    return tempPoint;
+                                }
+                            }
+                        }
+                        else if (memorySpace.lowerKey(entry.getKey()) != null) { //if there is a key lower than entry we want to check the next space available
+                            //System.out.println("Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                        }
+
+                    }
+
+
+                    KANSKE
+                    @Override
+                        public Pointer alloc(int size) {
+                            Pointer tempPoint = new Pointer(-1, this);
+
+                            if (memorySpace.isEmpty()) {
+                                tempPoint = new Pointer(0, this);
+                                memorySpace.put(tempPoint.pointsAt(), size);
+                                System.out.println("1Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                                return tempPoint;
+                            }
+
+                            for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+                                if (memorySpace.lowerEntry(entry.getKey()) != null) {
+                                    System.out.println(entry.getKey() + " <-- key");
+                                    int freeSpace = memorySpace.lowerEntry(entry.getKey()).getValue() + entry.getKey();
+                                    System.out.println("freespace " + freeSpace + " and size: " + size);
+                                    tempPoint = new Pointer(freeSpace, this);
+                                    memorySpace.put(tempPoint.pointsAt(), size);
+                                    System.out.println("2Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                                    return tempPoint;
+                                }
+                                else if (memorySpace.lowerKey(entry.getKey()) == null) { //there is no lower key than entry.getKey
+                                    if (entry.getKey() != 0) {//if its not 0, lets see if we can add memory from 0
+                                        if (entry.getKey() >= size) { //if there is space to add without overriding, then allocate OK
+                                            tempPoint = new Pointer(0, this);
+                                            memorySpace.put(0, size);
+                                            System.out.println("3Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                                            return tempPoint;
+                                        }
+                                    }
+                                }
+
+                                if (entry.getKey() == memorySpace.lastKey()) { //if were at the end
+                                    int freeSpace = entry.getKey() + entry.getValue();
+                                    if (freeSpace < mapSize) {
+                                        tempPoint = new Pointer(freeSpace, this);
+                                        memorySpace.put(tempPoint.pointsAt(), size);
+                                        System.out.println("4Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                                        return tempPoint;
+                                    }
+                                }
+
+                            }
+                            return tempPoint; //return invalid pointer
+                        }
