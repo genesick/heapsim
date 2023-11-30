@@ -270,3 +270,153 @@ public class FirstFit extends Memory {
                             }
                             return tempPoint; //return invalid pointer
                         }
+
+
+	@Override
+	public Pointer alloc(int size) {
+		Pointer tempPoint = new Pointer(-1, this);
+		int nextFreeSpace = 0;
+		int endOfSpace = 0;
+		int newAdress = 0;
+		int newSpace = 0;
+		int oldSize = 0; //to compare if oldsize is lower than current size and can squeeze in size
+
+		if (memorySpace.isEmpty()) {
+			tempPoint = new Pointer(0, this);
+			memorySpace.put(tempPoint.pointsAt(), size);
+			System.out.println("1Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+			return tempPoint;
+		}
+
+		for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+			nextFreeSpace = entry.getKey() + entry.getValue();
+			if (nextFreeSpace <= mapSize) {
+				if (memorySpace.higherKey(entry.getKey()) != null) { //if there is a key higher than current entry
+					//check if there is enough space to allocate
+
+					endOfSpace = memorySpace.higherKey(entry.getKey()); //next start of address
+					if ((endOfSpace-nextFreeSpace) >= size) { //check first that there is enough space
+						//if ok, check if its less than oldSize
+						if (oldSize > (endOfSpace-nextFreeSpace)) {
+							newAdress = endOfSpace-nextFreeSpace; //keep on iterating until we find the most optimal size
+							System.out.println(newAdress + " free Cells");
+							System.out.println("2Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+							//after were done, we can assign the address
+						}
+					}
+				}
+
+				if (memorySpace.lowerKey(entry.getKey()) == null) { //there is no lower key than entry.getKey
+					if (entry.getKey() != 0) {//if its not 0, lets see if we can add memory from 0
+						if (entry.getKey() >= size) { //if there is space to add without overriding, then allocate OK
+							tempPoint = new Pointer(0, this);
+							memorySpace.put(0, size);
+							System.out.println("3Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+							return tempPoint;
+						}
+					}
+				}
+				if (entry.getKey() == memorySpace.lastKey()) { //if were at the end -- keep this
+					nextFreeSpace = entry.getKey() + entry.getValue();
+					tempPoint = new Pointer(nextFreeSpace, this);
+					memorySpace.put(tempPoint.pointsAt(), size);
+					System.out.println("4Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+					return tempPoint;
+				}
+			}
+
+		}
+		tempPoint = new Pointer(newAdress, this);
+		memorySpace.put(tempPoint.pointsAt(), size);
+		System.out.println("5Allocated: " +  tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+
+		return tempPoint; //return invalid pointer
+	}
+
+
+@Override
+    public Pointer alloc(int size) {
+        Pointer tempPoint = new Pointer(-1, this);
+        int nextFreeSpace = 0;
+        int endOfSpace = 0;
+        int newAdress = 0;
+        int newSpace = 0;
+        int oldSize = Integer.MAX_VALUE; //to compare if oldsize is lower than current size and can squeeze in size
+
+        if (memorySpace.isEmpty()) {
+            tempPoint = new Pointer(0, this);
+            memorySpace.put(tempPoint.pointsAt(), size);
+            return tempPoint;
+        }
+
+        for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+            nextFreeSpace = entry.getKey() + entry.getValue();
+            if ((nextFreeSpace+size) <= mapSize) {
+                if (memorySpace.higherKey(entry.getKey()) != null) { //if there is a key higher than current entry
+                    //check if there is enough space to allocate
+                    endOfSpace = memorySpace.higherKey(entry.getKey()); //next start of address
+                    if ((endOfSpace - nextFreeSpace) >= size) { //check first that there is enough space
+                        //if ok, check if its less than oldSize
+                        if (oldSize >= (endOfSpace - nextFreeSpace)) {
+                            oldSize = endOfSpace - nextFreeSpace; //keep on iterating until we find the most optimal size
+                            System.out.println(oldSize + " free Cells");
+                            //after were done, we can assign the address
+                        }
+                    }
+                }
+
+                if (memorySpace.lowerKey(entry.getKey()) == null) { //there is no lower key than entry.getKey
+                    if (entry.getKey() != 0) {//if its not 0, lets see if we can add memory from 0
+                        if (entry.getKey() >= size) { //if there is space to add without overriding, then allocate OK
+                            tempPoint = new Pointer(0, this);
+                            memorySpace.put(0, size);
+                           // System.out.println("3Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                            return tempPoint;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        tempPoint = new Pointer(nextFreeSpace, this);
+        memorySpace.put(tempPoint.pointsAt(), size);
+        //System.out.println("5Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+
+        return tempPoint; //return invalid pointer
+    }
+
+for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
+            nextFreeSpace = entry.getKey() + entry.getValue();
+            if ((nextFreeSpace) <= mapSize) {
+                if (memorySpace.lowerKey(entry.getKey()) != null) { //if there is a key lower than current one
+                    if (memorySpace.higherKey(nextFreeSpace) != null)  { //check where the greatest gap is
+                        int freeSpace = memorySpace.lowerEntry(entry.getKey()).getValue() + memorySpace.lowerEntry(entry.getKey()).getKey();
+                        endOfSpace = memorySpace.higherKey(entry.getKey());
+                        System.out.println("lowerFreeSpace " + freeSpace);
+                        System.out.println("endOfSpace " + endOfSpace);
+                        System.out.println("current Address " + nextFreeSpace);
+                        if ((endOfSpace-freeSpace) >= size) { //if there is space,
+                            if (oldSize >= (endOfSpace - freeSpace)) { //is it less than the best size?
+                                oldSize = endOfSpace - freeSpace; //keep on iterating until we find the most optimal size
+                                System.out.println("size changed to " + oldSize);
+                                newAdress = freeSpace;
+                                //after were done, we can assign the address
+                            }
+                        }
+                    }
+                }
+                else if (memorySpace.lowerKey(entry.getKey()) == null) { //there is no lower key than entry.getKey
+                    if (entry.getKey() != 0) {//if its not 0, lets see if we can add memory from 0
+                        if (entry.getKey() >= size) { //if there is space to add without overriding, then allocate OK
+                            tempPoint = new Pointer(0, this);
+                            memorySpace.put(0, size);
+                            System.out.println("3Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
+                            return tempPoint;
+                        }
+                    }
+                }
+            }
+            counter++;
+            System.out.println("count: " + counter);
+        }

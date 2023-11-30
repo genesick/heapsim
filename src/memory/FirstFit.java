@@ -31,7 +31,6 @@ public class FirstFit extends Memory {
 
     public FirstFit(int size) {
         super(size);
-        this.size = size;
         mapSize = size;
         memorySpace = new TreeMap<>();
         // TODO Implement this!
@@ -97,11 +96,9 @@ public class FirstFit extends Memory {
      */
     @Override
     public void release(Pointer p) {
-        // TODO Implement this!
-        // Check if the Pointer p is in the memorySpace map
         if (memorySpace.containsKey(p.pointsAt())) {
             memorySpace.remove(p.pointsAt());
-            //System.out.println("removed " + p.pointsAt());
+
         }
     }
 
@@ -118,24 +115,21 @@ public class FirstFit extends Memory {
         System.out.println("Memory Layout:");
 
         int currentBlockStart = -1;
-        String currentBlockType = "Free";
 
         for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
             int blockStart = entry.getKey();
             int blockSize = entry.getValue();
 
-            // Check for gaps between the previous block and the current block
+            //check for gaps between the previous block and the current block
             if (currentBlockStart != -1 && blockStart > currentBlockStart + 1) {
                 System.out.printf("| %4d - %4d | %s%n", currentBlockStart + 1, blockStart - 1, "Free");
             }
 
             System.out.printf("| %4d - %4d | %s%n", blockStart, blockStart + blockSize - 1, "Allocated");
 
-            // Update for the next iteration
             currentBlockStart = blockStart + blockSize - 1;
         }
 
-        // Check for any remaining free space at the end
         if (currentBlockStart < mapSize - 1) {
             System.out.printf("| %4d - %4d | %s%n", currentBlockStart + 1, mapSize - 1, "Free");
         }
