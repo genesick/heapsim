@@ -20,9 +20,6 @@ import java.util.TreeMap;
  * read first available block, and then continue until amount of available spaces in a row fits the memory space.
  */
 public class FirstFit extends Memory {
-    private LinkedList availableMemory;
-    private int size;
-    private int memoryCounter = 0;
     private int mapSize;
     private TreeMap<Integer, Integer> memorySpace;
 
