@@ -26,10 +26,9 @@ public class SimpleBatch {
 		System.out.println("First fit");
 		FirstFit ff = new FirstFit(100);
 		run(ff);
-		//ff.printTable();
 		//run(new FirstFit(100)); // Swap this for  your own implementation
-		//System.out.println("\nBest fit");
-		//run(new BestFit(100)); // Swap this for  your own implementation
+		System.out.println("\nBest fit");
+		run(new BestFit(100)); // Swap this for  your own implementation
 	}
 
 	public void run(Memory m) {

@@ -112,8 +112,7 @@ public class FirstFit extends Memory {
      * | 1000 - 1024 | Free
      */
     public void printLayout() {
-        System.out.println("Memory Layout:");
-
+        System.out.println("memory now:");
         int currentBlockStart = -1;
 
         for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {

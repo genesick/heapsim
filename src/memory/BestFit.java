@@ -46,9 +46,9 @@ public class BestFit extends Memory {
         if (memorySpace.isEmpty()) {
             tempPoint = new Pointer(0, this);
             memorySpace.put(tempPoint.pointsAt(), size);
+           // System.out.println("Allocated " + size + " cells to " + 0);
             return tempPoint;
         }
-        System.out.println("----------------" + "SIZE TO ALLOCATE: " + size + " ----------------");
 
         for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
             nextFreeSpace = entry.getKey() + entry.getValue();
@@ -58,7 +58,7 @@ public class BestFit extends Memory {
                     if ((endOfSpace-nextFreeSpace) >= size) { //if there is enough space
                         freeMemory.add(nextFreeSpace);
                         endSpace.add(endOfSpace);
-                        continue;
+                        //continue;
                     }
                 } else { //if there is no higherkey, we can append it directly
                     freeMemory.add(nextFreeSpace);
@@ -66,10 +66,9 @@ public class BestFit extends Memory {
                     break;
                 } if (memorySpace.lowerKey(entry.getKey()) == null) { //there is no lower key than entry.getKey
                     if (entry.getKey() != 0) {//if its not 0, lets see if we can add memory from 0
-                        if (entry.getKey() >= size) { //if there is space to add without overriding, then allocate OK
+                        if (entry.getKey() >= size) { //if there is space to add without overriding, then allocation OK
                             tempPoint = new Pointer(0, this);
                             memorySpace.put(tempPoint.pointsAt(), size);
-                            System.out.println("3Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
                             return tempPoint;
                         }
                     }
@@ -79,31 +78,26 @@ public class BestFit extends Memory {
 
         //check where most optimal size is
         int smallestGap = Integer.MAX_VALUE;
-        int newAddress = -1; // Initialize with an invalid address
+        int newAddress = -1;
 
         for (int i = 0; i < freeMemory.size(); i++) {
             int currentGap = endSpace.get(i) - freeMemory.get(i);
 
-            if (currentGap <= smallestGap) {
+            if (currentGap < smallestGap) {
                 smallestGap = currentGap;
                 newAddress = freeMemory.get(i);
             }
-
-            //System.out.println("Free Memory: " + freeMemory.get(i));
-            //System.out.println("End Space: " + endSpace.get(i));
         }
+        //System.out.println("Allocated " + size + " cells to " + newAddress);
 
-       // System.out.println("Best fit address: " + newAddress);
         tempPoint = new Pointer(newAddress, this);
         memorySpace.put(tempPoint.pointsAt(), size);
-        //System.out.println("Allocated: " + tempPoint.pointsAt() + " - " + (tempPoint.pointsAt() + size));
 
         freeMemory.clear();
         endSpace.clear();
 
-        System.out.println("----------------------------------------");
 
-        return tempPoint; //return invalid pointer
+        return tempPoint;
     }
 
     /**
@@ -114,8 +108,8 @@ public class BestFit extends Memory {
     @Override
     public void release(Pointer p) {
         if (memorySpace.containsKey(p.pointsAt())) {
+            //System.out.println("released " + p.pointsAt());
             memorySpace.remove(p.pointsAt());
-            System.out.println("Released " + p.pointsAt());
         }
     }
 
@@ -128,8 +122,7 @@ public class BestFit extends Memory {
      * | 1000 - 1024 | Free
      */
     public void printLayout() {
-        System.out.println("Memory Layout:");
-
+        System.out.println("memory now:");
         int currentBlockStart = -1;
 
         for (Map.Entry<Integer, Integer> entry : memorySpace.entrySet()) {
